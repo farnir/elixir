@@ -1,8 +1,8 @@
 defmodule MyGenericServer do
 	def loop({callback_module, server_state}) do
-		receive do
+		server_state = receive do
 			{:cast, request} -> 
-				server_state = callback_module.handle_cast(request, server_state)
+				callback_module.handle_cast(request, server_state)
 			{:call, pid, request} -> 
 				server_state = callback_module.handle_call(request, server_state)
 				send(pid, server_state)
@@ -19,9 +19,8 @@ defmodule MyGenericServer do
 	def call(process_pid, request) do
 		send(process_pid, {:call, self(), request})
 		receive do 
-			{value, state} -> {tmp, _} = {value, state}
+			{value, _} -> value
 		end
-		tmp
 	end
 
 	def start_link(callback_module, server_initial_state) do
