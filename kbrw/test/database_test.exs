@@ -1,5 +1,5 @@
 defmodule KBRW.DatabaseTest do
-	use ExUnit.Case, async: true
+	use ExUnit.Case
 
 	test "create new key/value" do
 		KBRW.Database.insert(KBRW.Database, "Apple", "3")

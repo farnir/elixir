@@ -9,31 +9,37 @@ defmodule KBRW.Database do
 	end
 
 	@doc """
+	Search function for database.
+	"""
+	def search(_database, _criteria) do
+	end
+
+	@doc """
 	Quick function to insert data only if it doesn't exist.
 	"""
-	def insert(server, key, value) do
-		GenServer.cast(server, {:put, key, value})
+	def insert(database, key, value) do
+		GenServer.cast(database, {:put, key, value})
 	end
 
 	@doc """
 	Quick function to delete data.
 	"""
-	def delete(server, key) do
-		GenServer.cast(server, {:delete, key})
+	def delete(database, key) do
+		GenServer.cast(database, {:delete, key})
 	end
 
 	@doc """
 	Quick function to modified data.
 	"""
-	def change(server, key, value) do
-		GenServer.cast(server, {:post, key, value})
+	def change(database, key, value) do
+		GenServer.cast(database, {:post, key, value})
 	end
 
 	@doc """
 	Quick function to read data.
 	"""
-	def get(server, key) do
-		GenServer.call(server, {:get, key})
+	def get(database, key) do
+		GenServer.call(database, {:get, key})
 	end
 
 	@doc """
