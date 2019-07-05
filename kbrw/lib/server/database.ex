@@ -105,6 +105,7 @@ defmodule KBRW.Database do
 	@doc """
 	Deletes a row.
 	"""
+	@impl true
 	def handle_cast({:delete, key}, intern_state) do
 		:ets.delete(:db_table, key)
 		{:noreply, intern_state}
@@ -113,6 +114,7 @@ defmodule KBRW.Database do
 	@doc """
 	Modifies a row.
 	"""
+	@impl true
 	def handle_cast({:post, key, value}, intern_state) do
 		:ets.insert(:db_table, {key, value})
 		{:noreply, intern_state}
@@ -121,6 +123,7 @@ defmodule KBRW.Database do
 	@doc """
 	Lookup for a key/value.
 	"""
+	@impl true
 	def handle_call({:get, key}, _from, intern_state) do
 		result = :ets.lookup(:db_table, key)
 		{_, value} = cond do
@@ -133,6 +136,7 @@ defmodule KBRW.Database do
 	@doc """
 	Lookup for a the first key.
 	"""
+	@impl true
 	def handle_call({:first}, _from, intern_state) do
 		value = :ets.first(:db_table)
 		{:reply, value, intern_state}
@@ -141,6 +145,7 @@ defmodule KBRW.Database do
 	@doc """
 	Lookup for the next key.
 	"""
+	@impl true
 	def handle_call({:next, key}, _from, intern_state) do
 		value = :ets.next(:db_table, key)
 		{:reply, value, intern_state}

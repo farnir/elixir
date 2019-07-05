@@ -15,7 +15,7 @@ defmodule Kbrw.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger],
+      applications: [:logger, :cowboy],
       mod: {KBRW, []}
     ]
   end
@@ -30,6 +30,10 @@ defmodule Kbrw.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:poison, "~> 3.1"}]
+    [
+      {:cowboy, "~> 1.1.2"},
+      {:plug, "~> 1.3.4"},
+      {:poison, "~> 3.1"}
+    ]
   end
 end

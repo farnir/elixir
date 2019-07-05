@@ -11,11 +11,13 @@ defmodule KBRW.Supervisor do
 	@doc """
 	Init the Supervisor with our GenServer module.
 	"""
-  	def init([]) do
+	@impl true
+  	def init(_init_args) do
   		children = [
-      		KBRW.Database
-		]
+      		KBRW.Database,
+      		Plug.Adapters.Cowboy.child_spec(:http, TheFirstPlug, [], [port: 4001])
+    	]
 
-  		supervise(Enum.map(children, &worker(&1, [[]])), strategy: :one_for_one)
+  		Supervisor.init(children, strategy: :one_for_one)
   	end
 end
