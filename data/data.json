@@ -1,3 +1,18 @@
-{
-	"keys": "Bob"
-}
+[  
+   {  
+      "id":"toto",
+      "key": 42
+   },
+   {  
+      "id":"test",
+      "key": "42"
+   },
+   {  
+      "id":"tata",
+      "key": "Apero"
+   },
+   {  
+      "id":"kbrw",
+      "key": "Oh yeak"
+   }
+]

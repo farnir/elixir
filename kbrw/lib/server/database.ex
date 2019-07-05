@@ -11,7 +11,35 @@ defmodule KBRW.Database do
 	@doc """
 	Search function for database.
 	"""
-	def search(_database, _criteria) do
+	def search(database, criteria) do
+		result = search_loop(database, criteria, [], first(database))
+		{:ok, result}
+	end
+
+	@doc """
+	Condition when the end of the database if found.
+	"""
+	def search_loop(_database, _criteria, _list, :'$end_of_table') do
+		[]
+	end
+
+	@doc """
+	Main loop for searching in database.
+	"""
+	def search_loop(database, criteria, list, key) do
+		record = get(database, key)
+		list = list ++ search_loop(database, criteria, list, next(database, key))
+		result = Enum.filter(criteria, fn(x) ->
+			list_tmp = [x] 
+			tmp = Enum.into(list_tmp, %{})
+			critset = MapSet.new(tmp)
+			recordset = MapSet.new(record)
+			MapSet.subset?(critset, recordset)
+		end)
+		cond do
+			length(result) > 0 -> list ++ [record]
+			true -> list
+		end
 	end
 
 	@doc """
@@ -40,6 +68,20 @@ defmodule KBRW.Database do
 	"""
 	def get(database, key) do
 		GenServer.call(database, {:get, key})
+	end
+
+	@doc """
+	Get fist key in ets table.
+	"""
+	def first(database) do
+		GenServer.call(database, {:first})
+	end
+
+	@doc """
+	Get next key after key in ets table.
+	"""
+	def next(database, key) do
+		GenServer.call(database, {:next, key})
 	end
 
 	@doc """
@@ -81,10 +123,26 @@ defmodule KBRW.Database do
 	"""
 	def handle_call({:get, key}, _from, intern_state) do
 		result = :ets.lookup(:db_table, key)
-		{_, value} = cond  do
+		{_, value} = cond do
 			length(result) > 0 -> hd(result)
 			true -> {:empty, :empty}
 		end
+		{:reply, value, intern_state}
+	end
+
+	@doc """
+	Lookup for a the first key.
+	"""
+	def handle_call({:first}, _from, intern_state) do
+		value = :ets.first(:db_table)
+		{:reply, value, intern_state}
+	end
+
+	@doc """
+	Lookup for the next key.
+	"""
+	def handle_call({:next, key}, _from, intern_state) do
+		value = :ets.next(:db_table, key)
 		{:reply, value, intern_state}
 	end
 end
