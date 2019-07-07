@@ -15,7 +15,7 @@ defmodule KBRW.Supervisor do
   	def init(_init_args) do
   		children = [
       		KBRW.Database,
-      		Plug.Adapters.Cowboy.child_spec(:http, TheFirstPlug, [], [port: 4001])
+      		Plug.Adapters.Cowboy.child_spec(:http, Server.Router, [], [port: 4001])
     	]
 
   		Supervisor.init(children, strategy: :one_for_one)
