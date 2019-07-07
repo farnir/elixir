@@ -18,17 +18,29 @@ defmodule Server.TheCreator do
     	end
   	end
 
+  	defmacro my_error(code: code, content: content) do
+  		quote do
+  			def error_handler(conn), do: send_resp(conn, unquote(code), unquote(content))
+  		end
+  	end
+
 	defmacro __before_compile__(_env) do
 		quote do
 			def init(opts) do
       			opts
     		end
 
+    		def generic_error(conn) do
+    			send_resp(conn, 404, "Go away, you are not welcome here")
+    		end
+
 			def call(conn, _opts) do
 				put_resp_content_type(conn, "application/json")
 				name = String.to_atom(conn.request_path)
-				if Enum.member?(@routes, name) do
-					apply(__MODULE__, name, [conn])
+				cond do
+					Enum.member?(@routes, name) -> apply(__MODULE__, name, [conn])
+					function_exported?(__MODULE__, :error_handler, 1) -> apply(__MODULE__, :error_handler, [conn])
+					true -> apply(__MODULE__, :generic_error, [conn])
 				end
 			end
 		end
