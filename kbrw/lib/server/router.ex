@@ -1,13 +1,67 @@
 defmodule Server.Router do
-  use Server.TheCreator
+	use Plug.Router
 
-  my_error code: 404, content: "Custom error message"
+	plug(:match)
+	plug(:dispatch)
 
-  my_get "/" do
-    {200, "Welcome to the new world of Plugs!"}
-  end
+	get "/" do 
+		conn = fetch_query_params(conn)
+		params = conn.query_params
+		result = cond do
+			Map.has_key?(params, "id") -> 
+				KBRW.Database.get(KBRW.Database, params["id"])
+			true -> "No result found."	
+		end
+		result = cond do 
+			result == :empty -> "No result found."
+			true -> result
+		end
+		send_resp(conn, 200, result)
+	end
+	
+	get "/search" do
+		conn = fetch_query_params(conn)
+		params = conn.query_params
+		{_, result} = cond do
+			map_size(params) > 0 -> 
+				KBRW.Database.search(KBRW.Database, Map.to_list(params))
+			true -> {:error, "No result found."}	
+		end
+		send_resp(conn, 200, inspect(result))
+	end
 
-  my_get "/me" do
-    {200, "You are the Second One."}
-  end
+	get "/create" do
+		conn = fetch_query_params(conn)
+		params = conn.query_params
+		cond do
+			Map.has_key?(params, "id") && Map.has_key?(params, "value") -> 
+				KBRW.Database.insert(KBRW.Database, params["id"], params["value"])
+				send_resp(conn, 201, "New entry created.")
+			true -> send_resp(conn, 400, "Bad parameters.")
+		end
+	end
+
+	get "/change" do
+		conn = fetch_query_params(conn)
+		params = conn.query_params
+		cond do
+			Map.has_key?(params, "id") && Map.has_key?(params, "value") -> 
+				KBRW.Database.change(KBRW.Database, params["id"], params["value"])
+				send_resp(conn, 201, "Entry modified.")
+			true -> send_resp(conn, 400, "Bad parameters.")
+		end
+	end
+
+	get "/delete" do
+		conn = fetch_query_params(conn)
+		params = conn.query_params
+		cond do
+			Map.has_key?(params, "id") -> 
+				KBRW.Database.delete(KBRW.Database, params["id"])
+				send_resp(conn, 201, "Entry deleted.")
+			true -> send_resp(conn, 400, "Bad parameters.")
+		end
+	end
+
+	match _, do: send_resp(conn, 404, "Page Not Found")
 end
