@@ -10,7 +10,7 @@ module.exports = {
     plugins: [
         new ExtractTextPlugin ({
             filename: "styles.css"
-        }),
+        })
       ],
     module: {
       loaders: [

@@ -1,4 +1,4 @@
-/* Generated on: Wed Jul 10 2019 13:08:45 GMT+0000 (UTC) */
+/* Generated on: Thu Jul 11 2019 13:17:15 GMT+0000 (UTC) */
 /* ==========================================================================
    normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css 
    ========================================================================== */
@@ -473,6 +473,11 @@
   border-style: none;
   border-width: 1px;
   border-color: #5c92ff;
+}
+
+.header-container {
+  margin: 10px;
+  padding: 0px;
 }
 @font-face {
   font-family: 'Fa 400';

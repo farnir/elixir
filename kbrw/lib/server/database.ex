@@ -8,6 +8,22 @@ defmodule KBRW.Database do
 		GenServer.start_link(__MODULE__, initial_value, name: __MODULE__)
 	end
 
+	def all(database) do
+		result = GenServer.call(database, {:all})
+		process_all(result, [])
+	end
+
+	def process_all([], _list) do
+		[]	
+	end
+
+	def process_all(result, list) do
+		[head | tale] = result
+		{_, neo_result} = head
+		list = list ++ process_all(tale, list)
+		list ++ [neo_result]
+	end
+
 	@doc """
 	Search function for database.
 	"""
@@ -83,7 +99,7 @@ defmodule KBRW.Database do
 	def next(database, key) do
 		GenServer.call(database, {:next, key})
 	end
-
+	
 	@doc """
 	Create the ets table.
 	"""
@@ -149,5 +165,11 @@ defmodule KBRW.Database do
 	def handle_call({:next, key}, _from, intern_state) do
 		value = :ets.next(:db_table, key)
 		{:reply, value, intern_state}
+	end
+
+	@impl true
+	def handle_call({:all}, _from, inter_state) do
+		value = :ets.tab2list(:db_table)
+		{:reply, value, inter_state}
 	end
 end

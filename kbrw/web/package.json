@@ -10,14 +10,19 @@
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-jsxz": "^1.0.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
+    "cookie": "^0.4.0",
     "create-react-class": "^15.6.3",
     "css-loader": "^3.0.0",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^4.0.0",
-    "jsx": "^0.9.89"
+    "jsx": "^0.9.89",
+    "qs": "^6.7.0",
+    "when": "^3.7.8",
+    "xhr2": "^0.2.0"
   }
 }

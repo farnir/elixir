@@ -1,6 +1,7 @@
 defmodule Server.Router do
 	use Plug.Router
 
+	plug Plug.Static, from: "priv/static", at: "/static"
 	plug(:match)
 	plug(:dispatch)
 
@@ -17,6 +18,13 @@ defmodule Server.Router do
 			true -> result
 		end
 		send_resp(conn, 200, result)
+	end
+
+	get "/api/orders" do
+		results = KBRW.Database.all(KBRW.Database)
+		IO.puts("Incoming get all orders")
+		conn = put_resp_content_type(conn, "text/json")
+		send_resp(conn, 200, Poison.encode!(results))
 	end
 	
 	get "/search" do
@@ -63,5 +71,5 @@ defmodule Server.Router do
 		end
 	end
 
-	match _, do: send_resp(conn, 404, "Page Not Found")
+	get _, do: send_file(conn, 200, "priv/static/index.html")
 end
