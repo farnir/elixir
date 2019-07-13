@@ -22,9 +22,17 @@ defmodule Server.Router do
 
 	get "/api/orders" do
 		results = KBRW.Database.all(KBRW.Database)
-		IO.puts("Incoming get all orders")
 		conn = put_resp_content_type(conn, "text/json")
 		send_resp(conn, 200, Poison.encode!(results))
+	end
+
+	get "/api/order/:id" do
+		result = KBRW.Database.get(KBRW.Database, id)
+		send_resp(conn, 200, Poison.encode!(result))
+	end
+
+	get "/api/me" do
+		send_resp(conn, 200, Poison.encode!(%{"user" => "Valentin"}))
 	end
 	
 	get "/search" do
