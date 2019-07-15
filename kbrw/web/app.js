@@ -92,7 +92,7 @@ var ErrorPage = createReactClass({
 
 var Layout = createReactClass({
   getInitialState: function() {
-    return {modal: null};
+    return {modal: null, loader: null};
   },
   modal(spec){
     this.setState({modal: {
@@ -103,18 +103,31 @@ var Layout = createReactClass({
       }
     }})
   },
+  loader(promise){
+    this.setState({loader: {
+      ...promise}});
+    return promise.callback.then(() => this.setState({loader: null}));
+  },
 render(){
   var modal_component = {
     'delete': (props) => <DeleteModal {...props}/>
   }[this.state.modal && this.state.modal.type];
   modal_component = modal_component && modal_component(this.state.modal)
 
+  var loader_component = {
+    'load': (props) => <Loader {...props}/>
+  }[this.state.loader && this.state.loader.type];
+  loader_component = loader_component && loader_component(this.state.loader)
+
   var props = {
-    ...this.props, modal: this.modal
+    ...this.props, modal: this.modal, loader: this.loader
 }
     return <JSXZ in="orders" sel=".layout">
         <Z sel=".layout-modal-wrapper" className={cn(classNameZ, {'hidden': !modal_component})}>
           {modal_component}
+        </Z>
+        <Z sel=".layout-loader-wrapper" className={cn(classNameZ, {'hidden': !loader_component})}>
+          {loader_component}
         </Z>
         <Z sel=".layout-container"><this.props.Child {...props}/></Z>
     </JSXZ>
@@ -130,6 +143,14 @@ var DeleteModal = React.createClass({
     </JSXZ>
   }
 })
+
+var Loader = React.createClass({
+  render(){
+    return <JSXZ in="loader" sel=".loader-wrapper">
+    </JSXZ>
+  }
+})
+
 
 var Header = createReactClass({
   statics: {
@@ -168,14 +189,25 @@ var Orders = createReactClass({
                 message: `Are you sure you want to delete this ?`,
                 callback: (value)=>{
                   if (value == "submit") {
-                    this.props.orders.nocache = true;
                     HTTP.get("/api/delete?id=" + order.id)
                     .then(() => {
-                        GoTo("orders", "");}
+                      this.props.loader({
+                        type: 'load',
+                        callback: new Promise(resolve => {
+                          this.props.orders.nocache = true;
+                          setTimeout(resolve, 1000);
+                          GoTo("orders", "");
+                        })
+                      });
+                      }
                     );
                   }
                 }
-              })} className="button-pay"></button>              
+              })} className="button-pay"></button>
+              <button onClick={() => this.props.loader({
+                type: 'load',
+                callback: new Promise(resolve => setTimeout(resolve, 500))
+              })} className="button-pay"></button>                
             </Z>
 				  </JSXZ>)
 			    }

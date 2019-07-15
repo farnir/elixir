@@ -12,7 +12,10 @@
 /* ==========================================================================
    Start of custom Webflow CSS
    ========================================================================== */
-   
+.hidden {
+  display: none;
+}   
+
 .container {
   display: -webkit-box;
   display: -webkit-flex;
