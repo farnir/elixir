@@ -68,13 +68,14 @@ defmodule Server.Router do
 		end
 	end
 
-	get "/delete" do
+	get "/api/delete" do
 		conn = fetch_query_params(conn)
 		params = conn.query_params
+		IO.puts("Delete")
 		cond do
 			Map.has_key?(params, "id") -> 
 				KBRW.Database.delete(KBRW.Database, params["id"])
-				send_resp(conn, 201, "Entry deleted.")
+				send_resp(conn, 201, Poison.encode!(%{"status" => "ok"}))
 			true -> send_resp(conn, 400, "Bad parameters.")
 		end
 	end
