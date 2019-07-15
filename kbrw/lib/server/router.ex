@@ -71,7 +71,6 @@ defmodule Server.Router do
 	get "/api/delete" do
 		conn = fetch_query_params(conn)
 		params = conn.query_params
-		IO.puts("Delete")
 		cond do
 			Map.has_key?(params, "id") -> 
 				KBRW.Database.delete(KBRW.Database, params["id"])
