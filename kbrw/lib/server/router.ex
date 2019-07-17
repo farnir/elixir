@@ -20,7 +20,7 @@ defmodule Server.Router do
 		send_resp(conn, 200, result)
 	end
 
-	get "/api/orders" do
+	get "/api/legacy" do
 		results = KBRW.Database.all(KBRW.Database)
 		conn = put_resp_content_type(conn, "text/json")
 		send_resp(conn, 200, Poison.encode!(results))
@@ -44,6 +44,29 @@ defmodule Server.Router do
 			true -> {:error, "No result found."}	
 		end
 		send_resp(conn, 200, inspect(result))
+	end
+
+	def formatParams(map) do
+		map = Map.delete(map, "page")
+		map = Map.delete(map, "rows")
+		map = Map.delete(map, "sort")
+		Enum.map_join(map, "+AND+", fn
+			{key, val} -> ~s{#{key}:#{val}}
+		end)
+	end
+
+	get "/api/orders" do
+		conn = fetch_query_params(conn)
+		params_map = conn.query_params
+		params = formatParams(params_map)
+		result = cond do
+			Map.has_key?(params_map, "rows") && Map.has_key?(params_map, "page") ->
+				{page, _} = Integer.parse(params_map["page"])
+				{rows, _} = Integer.parse(params_map["rows"])
+				KBRW.Riak.search('adam', params, page, rows)
+			true -> KBRW.Riak.search('adam', params)
+		end
+		send_resp(conn, 200, result)
 	end
 
 	get "/create" do

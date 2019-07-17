@@ -1,4 +1,17 @@
 defmodule KBRW.Riak do
+    def search(index, query, page \\ 0, rows \\ 30, sort \\ 'items') do
+        page = cond do
+            page >= 1 -> (page - 1) * rows
+            true -> 0
+        end
+        url = "http://127.0.0.1:8098/search/query/#{index}?wt=json&q=#{query}&start=#{page}&rows=#{rows}&sort=#{sort}+desc"
+        url = to_charlist Regex.replace(~r/\s/, url, "+")        
+        {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}} = 
+        :httpc.request(:get, {url, []}, [], [])
+        data = Poison.decode!(body)["response"]
+        Poison.encode!(data)
+    end
+
     def getBuckets() do
         url = 'http://127.0.0.1:8098/buckets?buckets=true'
         {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}} = 
@@ -19,6 +32,7 @@ defmodule KBRW.Riak do
         Enum.each keys, fn key ->
             deleteObject(bucket, key)
         end
+        updateBucket(bucket);
         :ok
     end
 
@@ -26,23 +40,25 @@ defmodule KBRW.Riak do
         json = getBucketKeys(bucket)
         keys = Poison.decode!(json)["keys"]
         Enum.each keys, fn key ->
-            value = getObject(bucket, key)
-            deleteObject(bucket, key)
-            createObject(bucket, value)
+            {code, value} = getObject(bucket, key)
+            if code == 200 do
+                deleteObject(bucket, key)
+                createObject(bucket, value)
+            end
         end
         :ok
     end
 
     def getObject(bucket, key) do
         url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys/#{key}'
-        {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}} = 
+        {:ok, {{'HTTP/1.1', code, _message}, _headers, body}} = 
         :httpc.request(:get, {url, []}, [], [])
-        body
+        {code, body}
     end
 
     def createObject(bucket, object) do
         head = ''
-        contentType = 'application/x-www-form-urlencoded'
+        contentType = 'application/json'
         bodyIn = object
         url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys'
         {:ok, {{'HTTP/1.1', 201, 'Created'}, _headers, _body}} = 
@@ -52,7 +68,7 @@ defmodule KBRW.Riak do
 
     def createObject(bucket, object, key) do
         head = ''
-        contentType = 'application/x-www-form-urlencoded'
+        contentType = 'application/json'
         bodyIn = object
         url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys/#{key}'
         {:ok, {{'HTTP/1.1', 204, 'No Content'}, _headers, _body}} = 
@@ -62,7 +78,6 @@ defmodule KBRW.Riak do
 
     def deleteObject(bucket, key) do
         url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys/#{key}'
-        {:ok, {{'HTTP/1.1', 204, 'No Content'}, _headers, _body}} = 
         :httpc.request(:delete, {url, []}, [], [])
         :ok
     end
