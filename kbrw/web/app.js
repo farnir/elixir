@@ -63,7 +63,7 @@ var remoteProps = {
     var qs = {...props.qs}
     var query = Qs.stringify(qs)
     return {
-      url: "/api/orders" + (query == '' ? '' : '?' + query),
+      url: "/api/orders?*=*" + (query == '' ? '' : '?' + query),
       prop: "orders",
       nocache: false,
     }
@@ -173,10 +173,10 @@ var Orders = createReactClass({
     return <JSXZ in="orders" sel=".container">
             <Z sel=".tab-body">
           {
-				    this.props.orders.value.map( (order, i) => <JSXZ in="orders" sel=".tab-line" key={i}>
+				    this.props.orders.value.docs.map( (order, i) => <JSXZ in="orders" sel=".tab-line" key={i}>
 					  <Z sel=".col-1">{order.id}</Z>
-					  <Z sel=".col-2">{order.custom.customer.full_name}</Z>
-            <Z sel=".col-3">{order.custom.billing_address}</Z>
+					  <Z sel=".col-2">{order["custom.customer.full_name"]}</Z>
+            <Z sel=".col-3">{order["custom.billing_address"]}</Z>
             <Z sel=".col-4">{order.items}</Z>
             <Z sel=".col-5">
               <button onClick={() => GoTo("orders", "")} className="button-pay"></button>

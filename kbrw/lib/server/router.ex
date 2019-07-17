@@ -63,8 +63,8 @@ defmodule Server.Router do
 			Map.has_key?(params_map, "rows") && Map.has_key?(params_map, "page") ->
 				{page, _} = Integer.parse(params_map["page"])
 				{rows, _} = Integer.parse(params_map["rows"])
-				KBRW.Riak.search('adam', params, page, rows)
-			true -> KBRW.Riak.search('adam', params)
+				KBRW.Riak.search("honara", params, page, rows)
+			true -> KBRW.Riak.search("honara", params)
 		end
 		send_resp(conn, 200, result)
 	end

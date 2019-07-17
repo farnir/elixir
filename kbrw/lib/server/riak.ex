@@ -4,7 +4,7 @@ defmodule KBRW.Riak do
             page >= 1 -> (page - 1) * rows
             true -> 0
         end
-        url = "http://127.0.0.1:8098/search/query/#{index}?wt=json&q=#{query}&start=#{page}&rows=#{rows}&sort=#{sort}+desc"
+        url = "http://localhost:8098/search/query/#{index}?wt=json&q=#{query}&start=#{page}&rows=#{rows}&sort=#{sort}+desc"
         url = to_charlist Regex.replace(~r/\s/, url, "+")        
         {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}} = 
         :httpc.request(:get, {url, []}, [], [])
