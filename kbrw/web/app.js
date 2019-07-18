@@ -26,9 +26,13 @@ var routes = {
   }
 }
 
-var GoTo = (route, params, query) => {
-  var qs = Qs.stringify(query)
-  var url = routes[route].path + params + ((qs=='') ? '' : ('?'+qs))
+var GoTo = (route, params, page = 0) => {
+  if (params[0] != '?')
+    params = "?" + params;
+  var n = params.search("&page=");
+  if (n != -1)
+    params = params.replace(/&page=./, "");
+  var url = routes[route].path + params + ((page==0) ? '' : ('&page='+page))
   history.pushState({}, "", url)
   onPathChange()
 }
@@ -63,7 +67,7 @@ var remoteProps = {
     var qs = {...props.qs}
     var query = Qs.stringify(qs)
     return {
-      url: "/api/orders?*=*" + (query == '' ? '' : '?' + query),
+      url: "/api/orders?*=*" + (query == '' ? '' : '&' + query),
       prop: "orders",
       nocache: false,
     }
@@ -166,11 +170,23 @@ render(){
 })
 
 var Orders = createReactClass({
+  getInitialState: function() {
+    return {value: ""};
+  },
   statics: {
     remoteProps: [remoteProps.orders]
   },
+  handleSubmit(event) {
+    GoTo("orders", this.state.value);
+    event.preventDefault();
+  },
+  handleChange(event) {
+    this.setState({value: event.target.value});
+  },
   render(){
     return <JSXZ in="orders" sel=".container">
+            <Z sel=".form" onSubmit={this.handleSubmit}><ChildrenZ/></Z>
+            <Z sel=".text-field" value={this.state.value} onChange={this.handleChange}><ChildrenZ/></Z>
             <Z sel=".tab-body">
           {
 				    this.props.orders.value.docs.map( (order, i) => <JSXZ in="orders" sel=".tab-line" key={i}>
@@ -179,7 +195,7 @@ var Orders = createReactClass({
             <Z sel=".col-3">{order["custom.billing_address"]}</Z>
             <Z sel=".col-4">{order.items}</Z>
             <Z sel=".col-5">
-              <button onClick={() => GoTo("orders", "")} className="button-pay"></button>
+              <button onClick={() => GoTo("orders", "items=1")} className="button-pay"></button>
             </Z>
             <Z sel=".link">
               <button onClick={() => GoTo("order", "/" + order.id)} className="button-pay"></button>
@@ -211,7 +227,12 @@ var Orders = createReactClass({
             </Z>
 				  </JSXZ>)
 			    }
-            </Z>
+          </Z>
+          <Z sel=".index-div">
+            <button onClick={() => GoTo("orders", location.search, 1)} className="index">1</button>
+            <button onClick={() => GoTo("orders", location.search, 2)} className="index">2</button>
+            <button onClick={() => GoTo("orders", location.search, 3)} className="index">3</button>
+          </Z>
 			</JSXZ>
   }
 })

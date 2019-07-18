@@ -64,6 +64,9 @@ defmodule Server.Router do
 				{page, _} = Integer.parse(params_map["page"])
 				{rows, _} = Integer.parse(params_map["rows"])
 				KBRW.Riak.search("honara", params, page, rows)
+			Map.has_key?(params_map, "page") ->
+				{page, _} = Integer.parse(params_map["page"])
+				KBRW.Riak.search("honara", params, page)
 			true -> KBRW.Riak.search("honara", params)
 		end
 		send_resp(conn, 200, result)
