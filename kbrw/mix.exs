@@ -35,7 +35,9 @@ defmodule Kbrw.Mixfile do
       {:cowboy, "~> 1.0.0"},
       {:plug, "~> 1.3.4"},
       {:poison, "~> 2.1"},
-      {:reaxt, "~> 2.0", github: "kbrw/reaxt"}, 
+      {:reaxt, "~> 2.0", github: "kbrw/reaxt"},
+      {:exfsm, github: "kbrw/exfsm"},
+      {:rulex, github: "kbrw/rulex"},
     ]
   end
 end
