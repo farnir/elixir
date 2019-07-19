@@ -205,18 +205,17 @@ var Orders = createReactClass({
                 message: `Are you sure you want to delete this ?`,
                 callback: (value)=>{
                   if (value == "submit") {
-                    HTTP.get("/api/delete?id=" + order.id)
-                    .then(() => {
+                      var promise = HTTP.get("/api/delete?id=" + order.id);
                       this.props.loader({
                         type: 'load',
                         callback: new Promise(resolve => {
                           this.props.orders.nocache = true;
-                          setTimeout(resolve, 1000);
-                          GoTo("orders", "");
+                          promise.then(() => {
+                            GoTo("orders", "");
+                            setTimeout(resolve, 500);
+                          });
                         })
                       });
-                      }
-                    );
                   }
                 }
               })} className="button-pay"></button>
