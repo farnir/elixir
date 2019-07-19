@@ -1,7 +1,10 @@
 defmodule Server.Router do
 	use Plug.Router
 
-	plug Plug.Static, from: "priv/static", at: "/static"
+	plug Plug.Static, at: "/public", from: :kbrw
+	require EEx
+	EEx.function_from_file :defp, :layout, "web/layout.html.eex", [:render]
+
 	plug(:match)
 	plug(:dispatch)
 
@@ -105,5 +108,8 @@ defmodule Server.Router do
 		end
 	end
 
-	get _, do: send_file(conn, 200, "priv/static/index.html")
+	get _ do
+		render = Reaxt.render!(:app, %{path: conn.request_path, cookies: conn.cookies, query: conn.params},30_000)
+		send_resp(put_resp_header(conn,"content-type","text/html;charset=utf-8"), render.param || 200,layout(render))
+	  end
 end
