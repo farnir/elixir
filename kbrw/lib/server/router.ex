@@ -97,12 +97,12 @@ defmodule Server.Router do
 		end
 	end
 
-	get "/api/delete" do
+	delete "/api/orders" do
 		conn = fetch_query_params(conn)
 		params = conn.query_params
 		cond do
-			Map.has_key?(params, "id") -> 
-				KBRW.Database.delete(KBRW.Database, params["id"])
+			Map.has_key?(params, "key") -> 
+				KBRW.Riak.deleteObject('booby', params["key"])
 				send_resp(conn, 201, Poison.encode!(%{"status" => "ok"}))
 			true -> send_resp(conn, 400, "Bad parameters.")
 		end

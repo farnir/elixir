@@ -3,7 +3,6 @@ require('../webflow/modal.css');
 
 var XMLHttpRequest = require("xhr2")
 var localhost = require('reaxt/config').localhost
-var ReactDOM = require('react-dom')
 var React = require("react")
 var createReactClass = require('create-react-class')
 var Qs = require('qs')
@@ -24,17 +23,6 @@ var routes = {
       return r && {handlerPath: [Layout, Header, Order],  order_id: r[1]}
     }
   }
-}
-
-var GoTo = (route, params, page = 0) => {
-  if (params[0] != '?')
-    params = "?" + params;
-  var n = params.search("&page=");
-  if (n != -1)
-    params = params.replace(/&page=./, "");
-  var url = routes[route].path + params + ((page==0) ? '' : ('&page='+page))
-  history.pushState({},"",url)
-  Link.onPathChange()
 }
 
 var cn = function(){
@@ -74,7 +62,7 @@ var remoteProps = {
   },
   order: (props)=>{
     return {
-      url: "/api/order/" + props.order_id,
+      url: "/api/orders?id=" + props.order_id,
       prop: "order",
       nocache: false
     }
@@ -155,7 +143,6 @@ var Loader = React.createClass({
   }
 })
 
-
 var Header = createReactClass({
   statics: {
     remoteProps: [remoteProps.user]
@@ -177,7 +164,7 @@ var Orders = createReactClass({
     remoteProps: [remoteProps.orders]
   },
   handleSubmit(event) {
-    GoTo("orders", this.state.value);
+    Link.GoTo("orders", "?" + this.state.value);
     event.preventDefault();
   },
   handleChange(event) {
@@ -195,23 +182,23 @@ var Orders = createReactClass({
             <Z sel=".col-3">{order["custom.billing_address"]}</Z>
             <Z sel=".col-4">{order.items}</Z>
             <Z sel=".col-5">
-              <button onClick={() => GoTo("orders", "items=1")} className="button-pay"></button>
+              <button onClick={() => Link.GoTo("order", "/" + order.id)} className="button-pay"></button>
             </Z>
             <Z sel=".link">
-              <button onClick={() => GoTo("order", "/" + order.id)} className="button-pay"></button>
+            <button onClick={() => Link.GoTo("order", "/" + order.id)} className="button-pay"></button>
               <button onClick={() => this.props.modal({
                 type: 'delete',
                 title: 'Order deletion',
                 message: `Are you sure you want to delete this ?`,
                 callback: (value)=>{
                   if (value == "submit") {
-                      var promise = HTTP.get("/api/delete?id=" + order.id);
+                      var promise = HTTP.delete("/api/orders?key=" + order._yz_rk);
                       this.props.loader({
                         type: 'load',
                         callback: new Promise(resolve => {
                           this.props.orders.nocache = true;
                           promise.then(() => {
-                            GoTo("orders", "");
+                            Link.GoTo("orders", "");
                             setTimeout(resolve, 500);
                           });
                         })
@@ -228,9 +215,9 @@ var Orders = createReactClass({
 			    }
           </Z>
           <Z sel=".index-div">
-            <button onClick={() => GoTo("orders", location.search, 1)} className="index">1</button>
-            <button onClick={() => GoTo("orders", location.search, 2)} className="index">2</button>
-            <button onClick={() => GoTo("orders", location.search, 3)} className="index">3</button>
+            <button onClick={() => Link.GoTo("orders", location.search, { page: 1 })} className="index">1</button>
+            <button onClick={() => Link.GoTo("orders", location.search, { page: 2 })} className="index">2</button>
+            <button onClick={() => Link.GoTo("orders", location.search, { page: 3 })} className="index">3</button>
           </Z>
 			</JSXZ>
   }
@@ -242,11 +229,11 @@ var Order = createReactClass({
   },
   render(){
     return <JSXZ in="details" sel=".container">
-      <Z sel=".client-name">{this.props.order.value.custom.customer.full_name}</Z>
-      <Z sel=".client-address">{this.props.order.value.custom.billing_address}</Z>
-      <Z sel=".client-number">{this.props.order.value.id}</Z>
+      <Z sel=".client-name">{this.props.orders.value.docs[0]["custom.customer.full_name"]}</Z>
+      <Z sel=".client-address">{this.props.orders.value.docs[0]["custom.billing_address"]}</Z>
+      <Z sel=".client-number">{this.props.orders.value.docs[0].id}</Z>
       <Z sel=".link">
-        <button onClick={() => GoTo("orders", "")} className="button-2">Go back</button>
+        <button onClick={() => Link.GoTo("orders", "")} className="button-2">Go back</button>
       </Z>
     </JSXZ>
   }
@@ -256,9 +243,14 @@ var Link = createReactClass({
   statics: {
     renderFunc: null, //render function to use (differently set depending if we are server sided or client sided)
     GoTo(route, params, query){// function used to change the path of our browser
-      var path = routes[route].path(params)
+      if (query && params[0] != '?')
+        params = "?" + params;
+      var n = params.search("&page=");
+        if (n != -1)
+      params = params.replace(/&page=./, "");
+      var path = routes[route].path + params
       var qs = Qs.stringify(query)
-      var url = path + (qs == '' ? '' : '?' + qs)
+      var url = path + (qs == '' ? '' : '&' + qs)
       history.pushState({},"",url)
       Link.onPathChange()
     },
