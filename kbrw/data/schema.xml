@@ -5,6 +5,8 @@
     <field name="custom.customer.full_name" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="custom.billing_address"    type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="items"                     type="int"    indexed="true" stored="true" multiValued="false"/>
+    <field name="payment.payment_method"    type="string" indexed="false" stored="true" multiValued="false"/>
+    <field name="payment.status.state"      type="string" indexed="false" stored="true" multiValued="false"/>
 
    <dynamicField name="*" type="ignored" />
 

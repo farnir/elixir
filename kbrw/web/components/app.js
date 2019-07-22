@@ -181,35 +181,53 @@ var Orders = createReactClass({
 					  <Z sel=".col-2">{order["custom.customer.full_name"]}</Z>
             <Z sel=".col-3">{order["custom.billing_address"]}</Z>
             <Z sel=".col-4">{order.items}</Z>
+            <Z sel=".text-block-5">Status: {order["payment.status.state"]}</Z>
+            <Z sel=".text-block-6">Payment method: {order["payment.payment_method"]}</Z>
             <Z sel=".col-5">
               <button onClick={() => Link.GoTo("order", "/" + order.id)} className="button-pay"></button>
             </Z>
             <Z sel=".link">
-            <button onClick={() => Link.GoTo("order", "/" + order.id)} className="button-pay"></button>
-              <button onClick={() => this.props.modal({
-                type: 'delete',
-                title: 'Order deletion',
-                message: `Are you sure you want to delete this ?`,
-                callback: (value)=>{
-                  if (value == "submit") {
-                      var promise = HTTP.delete("/api/orders?key=" + order._yz_rk);
-                      this.props.loader({
-                        type: 'load',
-                        callback: new Promise(resolve => {
-                          this.props.orders.nocache = true;
-                          promise.then(() => {
-                            Link.GoTo("orders", "");
-                            setTimeout(resolve, 500);
-                          });
-                        })
-                      });
-                  }
-                }
-              })} className="button-pay"></button>
-              <button onClick={() => this.props.loader({
+            <button onClick={() => {
+              var promise = HTTP.get("/api/pay?key=" + order._yz_rk);
+              this.props.loader({
                 type: 'load',
-                callback: new Promise(resolve => setTimeout(resolve, 500))
-              })} className="button-pay"></button>                
+                callback: new Promise(resolve => {
+                  this.props.orders.nocache = true;
+                  promise.then(() => {
+                    Link.GoTo("orders", "");
+                    setTimeout(resolve, 500);
+                  });
+                })
+              });
+            }} className="button-pay"></button>
+            <button onClick={() => this.props.modal({
+              type: 'delete',
+              title: 'Order deletion',
+              message: `Are you sure you want to delete this ?`,
+              callback: (value)=>{
+                if (value == "submit") {
+                    var promise = HTTP.delete("/api/orders?key=" + order._yz_rk);
+                    this.props.loader({
+                      type: 'load',
+                      callback: new Promise(resolve => {
+                        this.props.orders.nocache = true;
+                        promise.then(() => {
+                          Link.GoTo("orders", "");
+                          setTimeout(resolve, 500);
+                        });
+                      })
+                    });
+                }
+              }
+            })} className="button-pay"></button>
+            <button onClick={() => this.props.loader({
+              type: 'load',
+              callback: new Promise(resolve => {
+                this.props.orders.url = "";
+                setTimeout(resolve, 500);
+                Link.GoTo("orders", "");
+              })
+            })} className="button-pay"></button>                
             </Z>
 				  </JSXZ>)
 			    }
@@ -255,6 +273,7 @@ var Link = createReactClass({
       Link.onPathChange()
     },
     onPathChange(){ //Updated onPathChange
+      console.log(browserState)
       var path = location.pathname
       var qs = Qs.parse(location.search.slice(1))
       var cookies = Cookie.parse(document.cookie)

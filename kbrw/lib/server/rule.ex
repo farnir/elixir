@@ -1,7 +1,9 @@
 defmodule MyRules do
     use Rulex
-    defrule my_first_rule("y" <> _, acc), do:
-        {:ok, [:starts_with_y | acc]}
-    defrule my_second_rule("yahoo",_acc), do:
-        {:error, :yahoo_is_err}
+    defrule paypal_fsm(%{"payment_method" => "paypal"} = order, acc), do: 
+        {:ok, [MyFSM.Paypal | acc]}
+    defrule stripe_fsm(%{"payment_method" => "stripe"} = order, acc), do:
+        {:ok, [MyFSM.Stripe | acc]}
+    defrule delivery_fsm(%{"payment_method" => "delivery"} = order, acc), do:
+        {:ok, [MyFSM.Delivery | acc]}
 end

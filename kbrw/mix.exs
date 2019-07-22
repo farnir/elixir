@@ -38,6 +38,7 @@ defmodule Kbrw.Mixfile do
       {:reaxt, "~> 2.0", github: "kbrw/reaxt"},
       {:exfsm, github: "kbrw/exfsm"},
       {:rulex, github: "kbrw/rulex"},
+      {:ewebmachine, github: "kbrw/ewebmachine"}
     ]
   end
 end

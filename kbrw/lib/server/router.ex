@@ -66,11 +66,11 @@ defmodule Server.Router do
 			Map.has_key?(params_map, "rows") && Map.has_key?(params_map, "page") ->
 				{page, _} = Integer.parse(params_map["page"])
 				{rows, _} = Integer.parse(params_map["rows"])
-				KBRW.Riak.search("honara", params, page, rows)
+				KBRW.Riak.search("orders", params, page, rows)
 			Map.has_key?(params_map, "page") ->
 				{page, _} = Integer.parse(params_map["page"])
-				KBRW.Riak.search("honara", params, page)
-			true -> KBRW.Riak.search("honara", params)
+				KBRW.Riak.search("orders", params, page)
+			true -> KBRW.Riak.search("orders", params)
 		end
 		send_resp(conn, 200, result)
 	end
@@ -102,7 +102,18 @@ defmodule Server.Router do
 		params = conn.query_params
 		cond do
 			Map.has_key?(params, "key") -> 
-				KBRW.Riak.deleteObject('booby', params["key"])
+				KBRW.Riak.deleteObject("buck", params["key"])
+				send_resp(conn, 201, Poison.encode!(%{"status" => "ok"}))
+			true -> send_resp(conn, 400, "Bad parameters.")
+		end
+	end
+
+	get "/api/pay" do
+		conn = fetch_query_params(conn)
+		params = conn.query_params
+		cond do
+			Map.has_key?(params, "key") -> 
+				KBRW.Transistor.start_link(Map.get(params, "key"))
 				send_resp(conn, 201, Poison.encode!(%{"status" => "ok"}))
 			true -> send_resp(conn, 400, "Bad parameters.")
 		end

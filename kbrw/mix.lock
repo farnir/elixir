@@ -1,5 +1,6 @@
 %{"cowboy": {:hex, :cowboy, "1.0.4", "a324a8df9f2316c833a470d918aaf73ae894278b8aa6226ce7a9bf699388f878", [:make, :rebar], [{:cowlib, "~> 1.0.0", [hex: :cowlib, repo: "hexpm", optional: false]}, {:ranch, "~> 1.0", [hex: :ranch, repo: "hexpm", optional: false]}], "hexpm"},
   "cowlib": {:hex, :cowlib, "1.0.2", "9d769a1d062c9c3ac753096f868ca121e2730b9a377de23dec0f7e08b1df84ee", [:make], [], "hexpm"},
+  "ewebmachine": {:git, "https://github.com/kbrw/ewebmachine.git", "25f279b099dcb85eaf3a229b91ce2ed5350099a5", []},
   "exfsm": {:git, "https://github.com/kbrw/exfsm.git", "38083f1524a8a66e05c99ab6d024c369b9c83726", []},
   "exos": {:hex, :exos, "1.0.0", "4eb19eb958de0c07284a3e6d23966b41e0bce37556120fcf908900b1eeee2b60", [:mix], [], "hexpm"},
   "mime": {:hex, :mime, "1.3.1", "30ce04ab3175b6ad0bdce0035cba77bba68b813d523d1aac73d9781b4d193cf8", [:mix], [], "hexpm"},
