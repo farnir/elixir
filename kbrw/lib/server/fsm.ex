@@ -51,8 +51,9 @@ defmodule MyFSM.Paypal do
     end
 
     def changeState(pid) do
-        GenServer.call(pid, {:transit})
+        result = GenServer.call(pid, {:transit})
         GenServer.stop(pid)
+        result
     end
     
     @impl true
@@ -61,7 +62,7 @@ defmodule MyFSM.Paypal do
     end
     
     def chooseTrans(state) do
-        nextTrans = cond do
+        cond do
             state == "init" -> :process_payment
             state == "not_verified" -> :verification
             true -> :error
@@ -75,9 +76,14 @@ defmodule MyFSM.Paypal do
         {fsm, _} = MyRules.apply_rules(order["payment"], [])
         order = Map.put(order, "payment", Map.put(order["payment"], "payment_handler", fsm))
         nextTrans = chooseTrans(order["payment"]["status"]["state"])
-        {:next_state, {_, new_order}} = ExFSM.Machine.event(order["payment"], {nextTrans, []})
-        order = Map.put(order, "payment", new_order)
-        KBRW.Riak.createObject('buck', Poison.encode!(order), intern_state)
-		{:reply, order, intern_state}
+        order = cond do 
+          nextTrans != :error ->
+            {:next_state, {_, new_order}} = ExFSM.Machine.event(order["payment"], {nextTrans, []})
+            order = Map.put(order, "payment", new_order)
+            KBRW.Riak.createObject('buck', Poison.encode!(order), intern_state)
+            order
+          true -> nextTrans
+        end
+		    {:reply, order, intern_state}
 	end
   end

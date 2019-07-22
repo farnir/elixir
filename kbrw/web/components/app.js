@@ -194,8 +194,8 @@ var Orders = createReactClass({
                 callback: new Promise(resolve => {
                   this.props.orders.nocache = true;
                   promise.then(() => {
-                    Link.GoTo("orders", "");
                     setTimeout(resolve, 500);
+                    Link.GoTo("orders", "");
                   });
                 })
               });
@@ -212,8 +212,8 @@ var Orders = createReactClass({
                       callback: new Promise(resolve => {
                         this.props.orders.nocache = true;
                         promise.then(() => {
-                          Link.GoTo("orders", "");
                           setTimeout(resolve, 500);
+                          Link.GoTo("orders", "");
                         });
                       })
                     });
@@ -223,7 +223,7 @@ var Orders = createReactClass({
             <button onClick={() => this.props.loader({
               type: 'load',
               callback: new Promise(resolve => {
-                this.props.orders.url = "";
+                this.props.orders.nocache = true;
                 setTimeout(resolve, 500);
                 Link.GoTo("orders", "");
               })
