@@ -238,9 +238,9 @@ var Orders = createReactClass({
 			    }
           </Z>
           <Z sel=".index-div">
-            <button onClick={() => Link.GoTo("orders", location.search, { page: 1 })} className="index">1</button>
-            <button onClick={() => Link.GoTo("orders", location.search, { page: 2 })} className="index">2</button>
-            <button onClick={() => Link.GoTo("orders", location.search, { page: 3 })} className="index">3</button>
+            <button onClick={() => Link.GoTo("orders", location.search, { page: this.props.orders.value.pageIndex - 1 })} className="index">{this.props.orders.value.pageIndex - 1}</button>
+            <button onClick={() => Link.GoTo("orders", location.search, { page: this.props.orders.value.pageIndex})} className="index">{this.props.orders.value.pageIndex}</button>
+            <button onClick={() => Link.GoTo("orders", location.search, { page: this.props.orders.value.pageIndex + 1 })} className="index">{this.props.orders.value.pageIndex + 1}</button>
           </Z>
 			</JSXZ>
   }
@@ -270,7 +270,7 @@ var Link = createReactClass({
         params = "?" + params;
       var n = params.search("&page=");
         if (n != -1)
-      params = params.replace(/&page=./, "");
+      params = params.replace(/&page=[0-9]*/, "");
       var path = routes[route].path + params
       var qs = Qs.stringify(query)
       var url = path + (qs == '' ? '' : '&' + qs)
