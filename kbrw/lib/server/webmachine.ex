@@ -63,7 +63,7 @@ defmodule KBRW.EwebRouter do
             params = Poison.decode!(body)
             cond do
                 Map.has_key?(params, "key") -> 
-                    Poison.encode!(KBRW.Transistor.start_link(Map.get(params, "key")))
+                    KBRW.Transistor.start_link({:process_payment ,Map.get(params, "key")})
                     true
                 true -> false
             end

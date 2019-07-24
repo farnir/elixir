@@ -193,21 +193,23 @@ var Orders = createReactClass({
               <button onClick={() => Link.GoTo("order", { order_id: order.id }, {...this.props.qs})} className="button-pay"></button>
             </Z>
             <Z sel=".link">
-            <button onClick={() => {
-              var promise = HTTP.post("/api/pay", { key: order._yz_rk });
-              this.props.loader({
-                type: 'load',
-                callback: new Promise(resolve => {
-                  setTimeout(() => {
-                    promise.then(() => {
-                      this.props.orders.nocache = true;
-                      Link.GoTo("orders", {}, this.props.qs);
-                      resolve();
-                    });
-                  }, 1500);
-                })
-              });
-            }} className="button-pay"></button>
+            {order["payment.status.state"] == "init" &&
+              <button onClick={() => {
+                var promise = HTTP.post("/api/pay", { key: order._yz_rk });
+                this.props.loader({
+                  type: 'load',
+                  callback: new Promise(resolve => {
+                    setTimeout(() => {
+                      promise.then(() => {
+                        this.props.orders.nocache = true;
+                        Link.GoTo("orders", {}, this.props.qs);
+                        resolve();
+                      });
+                    }, 1500);
+                  })
+                });
+              }} className="button-pay"></button>
+            }
             <button onClick={() => this.props.modal({
               type: 'delete',
               title: 'Order deletion',
