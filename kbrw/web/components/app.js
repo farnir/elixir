@@ -158,7 +158,7 @@ render(){
 
 var Orders = createReactClass({
   getInitialState: function() {
-    return {value: "", query: ""};
+    return {value: ""};
   },
   statics: {
     remoteProps: [remoteProps.orders]
@@ -171,7 +171,6 @@ var Orders = createReactClass({
       var keys = element.split('=');
       result[keys[0]] = keys[1];
     });
-    this.setState({query: result});
     Link.GoTo("orders", {}, result );
   },
   handleChange(event) {
@@ -191,7 +190,7 @@ var Orders = createReactClass({
             <Z sel=".text-block-5">Status: {order["payment.status.state"]}</Z>
             <Z sel=".text-block-6">Payment method: {order["payment.payment_method"]}</Z>
             <Z sel=".col-5">
-              <button onClick={() => Link.GoTo("order", { order_id: order.id })} className="button-pay"></button>
+              <button onClick={() => Link.GoTo("order", { order_id: order.id }, {...this.props.qs})} className="button-pay"></button>
             </Z>
             <Z sel=".link">
             <button onClick={() => {
@@ -202,7 +201,7 @@ var Orders = createReactClass({
                   setTimeout(() => {
                     promise.then(() => {
                       this.props.orders.nocache = true;
-                      Link.GoTo("orders", "");
+                      Link.GoTo("orders", {}, this.props.qs);
                       resolve();
                     });
                   }, 1500);
@@ -222,7 +221,7 @@ var Orders = createReactClass({
                           setTimeout(() => {
                             promise.then(() => {
                               this.props.orders.nocache = true;
-                              Link.GoTo("orders", "");
+                              Link.GoTo("orders", {}, this.props.qs);
                               resolve();
                             });
                           }, 1000);
@@ -235,7 +234,7 @@ var Orders = createReactClass({
               type: 'load',
               callback: new Promise(resolve => {
                 this.props.orders.nocache = true;
-                Link.GoTo("orders", "");
+                Link.GoTo("orders", {}, this.props.qs);
                 setTimeout(resolve, 500);
               })
             })} className="button-pay"></button>                
@@ -244,9 +243,9 @@ var Orders = createReactClass({
 			    }
           </Z>
           <Z sel=".index-div">
-            <button onClick={() => Link.GoTo("orders", {}, {...this.state.query, page: this.props.orders.value.pageIndex - 1 })} className="index">{this.props.orders.value.pageIndex - 1}</button>
-            <button onClick={() => Link.GoTo("orders", {}, {...this.state.query, page: this.props.orders.value.pageIndex})} className="index">{this.props.orders.value.pageIndex}</button>
-            <button onClick={() => Link.GoTo("orders", {}, {...this.state.query, page: this.props.orders.value.pageIndex + 1 })} className="index">{this.props.orders.value.pageIndex + 1}</button>
+            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: this.props.orders.value.pageIndex - 1 })} className="index">{this.props.orders.value.pageIndex - 1}</button>
+            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: this.props.orders.value.pageIndex})} className="index">{this.props.orders.value.pageIndex}</button>
+            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: this.props.orders.value.pageIndex + 1 })} className="index">{this.props.orders.value.pageIndex + 1}</button>
           </Z>
 			</JSXZ>
   }
@@ -262,7 +261,7 @@ var Order = createReactClass({
       <Z sel=".client-address">{this.props.orders.value.docs[0]["custom.billing_address"]}</Z>
       <Z sel=".client-number">{this.props.orders.value.docs[0].id}</Z>
       <Z sel=".link">
-        <button onClick={() => Link.GoTo("orders", "")} className="button-2">Go back</button>
+        <button onClick={() => Link.GoTo("orders", {}, this.props.qs)} className="button-2">Go back</button>
       </Z>
     </JSXZ>
   }
