@@ -259,9 +259,9 @@ var Order = createReactClass({
   },
   render(){
     return <JSXZ in="details" sel=".container">
-      <Z sel=".client-name">{this.props.orders.value.docs[0]["custom.customer.full_name"]}</Z>
-      <Z sel=".client-address">{this.props.orders.value.docs[0]["custom.billing_address"]}</Z>
-      <Z sel=".client-number">{this.props.orders.value.docs[0].id}</Z>
+      <Z sel=".client-name">{this.props.order.value.docs[0]["custom.customer.full_name"]}</Z>
+      <Z sel=".client-address">{this.props.order.value.docs[0]["custom.billing_address"]}</Z>
+      <Z sel=".client-number">{this.props.order.value.docs[0].id}</Z>
       <Z sel=".link">
         <button onClick={() => Link.GoTo("orders", {}, this.props.qs)} className="button-2">Go back</button>
       </Z>
