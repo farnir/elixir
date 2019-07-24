@@ -11,13 +11,13 @@ var When = require('when')
 
 var routes = {
   "orders": {
-    path: "/orders",
+    path: (params) => `/orders`,
     match: (path, qs) => {
       return (path == "/orders") && {handlerPath: [Layout, Header, Orders]}
     }
   }, 
   "order": {
-    path: "/order",
+    path: (params) => `/order/${params.order_id}`,
     match: (path, qs) => {
       var r = new RegExp("/order/([^/]*)$").exec(path)
       return r && {handlerPath: [Layout, Header, Order],  order_id: r[1]}
@@ -158,14 +158,21 @@ render(){
 
 var Orders = createReactClass({
   getInitialState: function() {
-    return {value: ""};
+    return {value: "", query: ""};
   },
   statics: {
     remoteProps: [remoteProps.orders]
   },
   handleSubmit(event) {
-    Link.GoTo("orders", "?" + this.state.value);
     event.preventDefault();
+    var result = {}
+    var attr = this.state.value.split('&');
+    attr.forEach(element => {
+      var keys = element.split('=');
+      result[keys[0]] = keys[1];
+    });
+    this.setState({query: result});
+    Link.GoTo("orders", {}, result );
   },
   handleChange(event) {
     this.setState({value: event.target.value});
@@ -184,12 +191,11 @@ var Orders = createReactClass({
             <Z sel=".text-block-5">Status: {order["payment.status.state"]}</Z>
             <Z sel=".text-block-6">Payment method: {order["payment.payment_method"]}</Z>
             <Z sel=".col-5">
-              <button onClick={() => Link.GoTo("order", "/" + order.id)} className="button-pay"></button>
+              <button onClick={() => Link.GoTo("order", { order_id: order.id })} className="button-pay"></button>
             </Z>
             <Z sel=".link">
             <button onClick={() => {
-              var data = { key: order._yz_rk };
-              var promise = HTTP.post("/api/pay", data);
+              var promise = HTTP.post("/api/pay", { key: order._yz_rk });
               this.props.loader({
                 type: 'load',
                 callback: new Promise(resolve => {
@@ -238,9 +244,9 @@ var Orders = createReactClass({
 			    }
           </Z>
           <Z sel=".index-div">
-            <button onClick={() => Link.GoTo("orders", location.search, { page: this.props.orders.value.pageIndex - 1 })} className="index">{this.props.orders.value.pageIndex - 1}</button>
-            <button onClick={() => Link.GoTo("orders", location.search, { page: this.props.orders.value.pageIndex})} className="index">{this.props.orders.value.pageIndex}</button>
-            <button onClick={() => Link.GoTo("orders", location.search, { page: this.props.orders.value.pageIndex + 1 })} className="index">{this.props.orders.value.pageIndex + 1}</button>
+            <button onClick={() => Link.GoTo("orders", {}, {...this.state.query, page: this.props.orders.value.pageIndex - 1 })} className="index">{this.props.orders.value.pageIndex - 1}</button>
+            <button onClick={() => Link.GoTo("orders", {}, {...this.state.query, page: this.props.orders.value.pageIndex})} className="index">{this.props.orders.value.pageIndex}</button>
+            <button onClick={() => Link.GoTo("orders", {}, {...this.state.query, page: this.props.orders.value.pageIndex + 1 })} className="index">{this.props.orders.value.pageIndex + 1}</button>
           </Z>
 			</JSXZ>
   }
@@ -266,14 +272,9 @@ var Link = createReactClass({
   statics: {
     renderFunc: null, //render function to use (differently set depending if we are server sided or client sided)
     GoTo(route, params, query){// function used to change the path of our browser
-      if (query && params[0] != '?')
-        params = "?" + params;
-      var n = params.search("&page=");
-        if (n != -1)
-      params = params.replace(/&page=[0-9]*/, "");
-      var path = routes[route].path + params
+      var path = routes[route].path(params)
       var qs = Qs.stringify(query)
-      var url = path + (qs == '' ? '' : '&' + qs)
+      var url = path + (qs == '' ? '' : '?' + qs)
       history.pushState({},"",url)
       Link.onPathChange()
     },
@@ -383,7 +384,6 @@ function addRemoteProps(props){
     .filter((specs)=> !props[specs.prop] || props[specs.prop].url != specs.url || props[specs.prop].nocache == true) // get rid of remoteProps already resolved with the url
     if(remoteProps.length == 0)
       return resolve(props)
-    console.log("I'm in");
       // check out https://github.com/cujojs/when/blob/master/docs/api.md#whenmap and https://github.com/cujojs/when/blob/master/docs/api.md#whenreduce
       var promise = When.map( // Returns a Promise that either on a list of resolved remoteProps, or on the rejected value by the first fetch who failed 
         remoteProps.map((spec)=>{ // Returns a list of Promises that resolve on list of resolved remoteProps ([{url: '/api/me', value: {name: 'Guillaume'}, prop: 'user'}])

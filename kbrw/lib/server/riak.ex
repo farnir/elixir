@@ -12,7 +12,7 @@ defmodule KBRW.Riak do
         data = Poison.decode!(body)["response"]
         tmpPage = cond do
             tmpPage == 0 -> 1
-            page >= data["numFound"] -> round(data["numFound"] / rows)
+            page >= data["numFound"] -> round(data["numFound"] / rows) + 1
             true -> tmpPage
         end
         data = Map.put(data, "pageIndex", tmpPage)
