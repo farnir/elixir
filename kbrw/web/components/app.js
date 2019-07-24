@@ -193,13 +193,15 @@ var Orders = createReactClass({
               this.props.loader({
                 type: 'load',
                 callback: new Promise(resolve => {
-                  promise.then(() => {
-                    this.props.orders.url = "";
-                    Link.GoTo("orders", "");
-                    resolve();
-                  });
+                  setTimeout(() => {
+                    promise.then(() => {
+                      this.props.orders.nocache = true;
+                      Link.GoTo("orders", "");
+                      resolve();
+                    });
+                  }, 1500);
                 })
-              }).then();
+              });
             }} className="button-pay"></button>
             <button onClick={() => this.props.modal({
               type: 'delete',
@@ -211,13 +213,15 @@ var Orders = createReactClass({
                     this.props.loader({
                       type: 'load',
                       callback: new Promise(resolve => {
-                        promise.then(() => {
-                          this.props.orders.nocache = true;
-                          Link.GoTo("orders", "");
-                          setTimeout(resolve, 500);
-                        });
+                          setTimeout(() => {
+                            promise.then(() => {
+                              this.props.orders.nocache = true;
+                              Link.GoTo("orders", "");
+                              resolve();
+                            });
+                          }, 1000);
                       })
-                    }).then();
+                    });
                 }
               }
             })} className="button-pay"></button>

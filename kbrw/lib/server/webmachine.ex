@@ -49,7 +49,7 @@ defmodule KBRW.EwebRouter do
             conn = fetch_query_params(conn)
             params = conn.query_params
             cond do
-                Map.has_key?(params, "key") -> 
+                Map.has_key?(params, "key") ->
                     KBRW.Riak.deleteObject("buck", params["key"])
                 true -> false
             end
