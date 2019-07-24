@@ -188,17 +188,18 @@ var Orders = createReactClass({
             </Z>
             <Z sel=".link">
             <button onClick={() => {
-              var promise = HTTP.get("/api/pay?key=" + order._yz_rk);
+              var data = { key: order._yz_rk };
+              var promise = HTTP.post("/api/pay", data);
               this.props.loader({
                 type: 'load',
                 callback: new Promise(resolve => {
-                  this.props.orders.nocache = true;
                   promise.then(() => {
-                    setTimeout(resolve, 500);
+                    this.props.orders.url = "";
                     Link.GoTo("orders", "");
+                    resolve();
                   });
                 })
-              });
+              }).then();
             }} className="button-pay"></button>
             <button onClick={() => this.props.modal({
               type: 'delete',
@@ -210,13 +211,13 @@ var Orders = createReactClass({
                     this.props.loader({
                       type: 'load',
                       callback: new Promise(resolve => {
-                        this.props.orders.nocache = true;
                         promise.then(() => {
-                          setTimeout(resolve, 500);
+                          this.props.orders.nocache = true;
                           Link.GoTo("orders", "");
+                          setTimeout(resolve, 500);
                         });
                       })
-                    });
+                    }).then();
                 }
               }
             })} className="button-pay"></button>
@@ -224,8 +225,8 @@ var Orders = createReactClass({
               type: 'load',
               callback: new Promise(resolve => {
                 this.props.orders.nocache = true;
-                setTimeout(resolve, 500);
                 Link.GoTo("orders", "");
+                setTimeout(resolve, 500);
               })
             })} className="button-pay"></button>                
             </Z>
@@ -273,12 +274,12 @@ var Link = createReactClass({
       Link.onPathChange()
     },
     onPathChange(){ //Updated onPathChange
-      console.log(browserState)
       var path = location.pathname
       var qs = Qs.parse(location.search.slice(1))
       var cookies = Cookie.parse(document.cookie)
       inferPropsChange(path, qs, cookies).then( //inferPropsChange download the new props if the url query changed as done previously
         ()=>{
+          console.log(browserState);
           Link.renderFunc(<Child {...browserState}/>) //if we are on server side we render 
         },({http_code})=>{
           Link.renderFunc(<ErrorPage message={"Not Found"} code={http_code}/>, http_code) //idem
@@ -377,7 +378,8 @@ function addRemoteProps(props){
     .filter((specs)=> specs) // get rid of undefined from remoteProps that don't match their dependencies
     .filter((specs)=> !props[specs.prop] || props[specs.prop].url != specs.url || props[specs.prop].nocache == true) // get rid of remoteProps already resolved with the url
     if(remoteProps.length == 0)
-    return resolve(props)
+      return resolve(props)
+    console.log("I'm in");
       // check out https://github.com/cujojs/when/blob/master/docs/api.md#whenmap and https://github.com/cujojs/when/blob/master/docs/api.md#whenreduce
       var promise = When.map( // Returns a Promise that either on a list of resolved remoteProps, or on the rejected value by the first fetch who failed 
         remoteProps.map((spec)=>{ // Returns a list of Promises that resolve on list of resolved remoteProps ([{url: '/api/me', value: {name: 'Guillaume'}, prop: 'user'}])

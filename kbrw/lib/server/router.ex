@@ -103,7 +103,7 @@ defmodule Server.Router do
 		cond do
 			Map.has_key?(params, "key") -> 
 				KBRW.Riak.deleteObject("buck", params["key"])
-				send_resp(conn, 201, Poison.encode!(%{"status" => "ok"}))
+				send_resp(conn, 204, Poison.encode!(%{"status" => "ok"}))
 			true -> send_resp(conn, 400, "Bad parameters.")
 		end
 	end
@@ -114,7 +114,7 @@ defmodule Server.Router do
 		cond do
 			Map.has_key?(params, "key") -> 
 				KBRW.Transistor.start_link(Map.get(params, "key"))
-				send_resp(conn, 201, Poison.encode!(%{"status" => "ok"}))
+				send_resp(conn, 204, Poison.encode!(%{"status" => "ok"}))
 			true -> send_resp(conn, 400, "Bad parameters.")
 		end
 	end

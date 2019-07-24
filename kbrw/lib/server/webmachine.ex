@@ -21,16 +21,15 @@ defmodule KBRW.EwebRouter do
     end
     
     resource "/api/me" do %{} after
-        content_types_provided do: ['text/json': :to_json]
+        content_types_provided do: ['application/json': :to_json]
         defh to_json do
             Poison.encode!(%{"user" => "Valentin"})
         end
-        Poison.encode!(%{"user" => "Valentin"})
     end
 
     resource "/api/orders" do %{} after
         allowed_methods do: ["GET","DELETE"]
-        content_types_provided do: ['text/json': :to_json]
+        content_types_provided do: ['application/json': :to_json]
         defh to_json do
             conn = fetch_query_params(conn)
             params_map = conn.query_params
@@ -58,14 +57,15 @@ defmodule KBRW.EwebRouter do
     end
 
     resource "/api/pay" do %{} after
-        content_types_provided do: ['text/json': :to_json]
-        defh to_json do
-            conn = fetch_query_params(conn)
-            params = conn.query_params
+        allowed_methods do: ["POST"]
+        process_post do
+            {:ok, body, conn} = Plug.Conn.read_body(conn)
+            params = Poison.decode!(body)
             cond do
                 Map.has_key?(params, "key") -> 
                     Poison.encode!(KBRW.Transistor.start_link(Map.get(params, "key")))
-                true -> Poison.encode!(%{:error => "Bad parameters."})
+                    true
+                true -> false
             end
         end
     end
@@ -76,16 +76,16 @@ defmodule KBRW.EwebRouter do
         content_types_provided do:
           [{state.path|>Plug.MIME.path|>default_plain,:to_content}]
         defh to_content, do:
-          File.stream!(path(state.path),[],300_000_000)
+          File.stream!(path(state.path), [], 300_000_000)
         defp path(relative), do: "priv/static//#{relative}"
         defp default_plain("application/octet-stream"), do: "text/plain"
         defp default_plain(type), do: type
       end
     
-    resource "/orders" do %{} after
+    resource "*_" do %{} after
         content_types_provided do: ['text/html': :to_html]
         defh to_html do
-            render = Reaxt.render!(:app, %{path: conn.request_path, cookies: conn.cookies, query: conn.params},30_000)
+            render = Reaxt.render!(:app, %{path: conn.request_path, cookies: conn.cookies, query: conn.params}, 30_000)
 		    KBRW.EwebRouter.layout(render)
         end
     end
