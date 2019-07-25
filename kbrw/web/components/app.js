@@ -191,12 +191,8 @@ var Orders = createReactClass({
             <Z sel=".col-4">{order.items}</Z>
             <Z sel=".text-block-5">Status: {order["payment.status.state"]}</Z>
             <Z sel=".text-block-6">Payment method: {order["payment.payment_method"]}</Z>
-            <Z sel=".col-5">
-              <button onClick={() => Link.GoTo("order", { order_id: order.id }, {...this.props.qs})} className="button-pay"></button>
-            </Z>
-            <Z sel=".link">
-            {order["payment.status.state"] == "init" &&
-              <button onClick={() => {
+            <Z sel=".button-details" onClick={() => Link.GoTo("order", { order_id: order.id }, {...this.props.qs})}><ChildrenZ/></Z>
+              <Z sel=".button-pay" onClick={() => {
                 var promise = HTTP.post("/api/pay", { key: order._yz_rk });
                 this.props.loader({
                   type: 'load',
@@ -210,9 +206,8 @@ var Orders = createReactClass({
                     }, 1500);
                   })
                 });
-              }} className="button-pay"></button>
-            }
-            <button onClick={() => this.props.modal({
+              }} className={cn(classNameZ, {'hidden': (order["payment.status.state"] != "init")})}><ChildrenZ /></Z>
+            <Z sel=".button-trash" onClick={() => this.props.modal({
               type: 'delete',
               title: 'Order deletion',
               message: `Are you sure you want to delete this ?`,
@@ -233,40 +228,30 @@ var Orders = createReactClass({
                     });
                 }
               }
-            })} className="button-pay"></button>
-            <button onClick={() => this.props.loader({
+            })}><ChildrenZ /></Z>
+            <Z sel=".button-trash" onClick={() => this.props.loader({
               type: 'load',
               callback: new Promise(resolve => {
                 this.props.orders.nocache = true;
                 Link.GoTo("orders", {}, this.props.qs);
                 setTimeout(resolve, 500);
               })
-            })} className="button-pay"></button>                
-            </Z>
+            })}><ChildrenZ /></Z>                
 				  </JSXZ>)
 			    }
           </Z>
-          <Z sel=".index-div">
-          {this.props.qs.page > 1 &&
-            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: 1 })} className="index">First</button>
-          }
-          {this.props.qs.page > 1 &&
-            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: parseInt(this.props.qs.page) - 1 })} className="index">Precedent</button>
-          }
+          <Z sel=".page-first" onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: 1})} className={cn(classNameZ, {'hidden': (this.props.qs.page <= 1)})}><ChildrenZ/></Z>
+          <Z sel=".page-before" onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: parseInt(this.props.qs.page) - 1})} className={cn(classNameZ, {'hidden': (this.props.qs.page <= 1)})}><ChildrenZ/></Z>
+          <Z sel=".page-div-2">
           {
-            calcRange(parseInt(this.props.qs.page), Math.ceil(this.props.orders.value.numFound / 30)).map( (i) => {
-              if (this.props.qs.page == i)
-                return <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: i})} className="index highlight" key={i}>{i}</button>
-              return <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: i})} className="index" key={i}>{i}</button>
-            })
-          }
-          {this.props.qs.page < Math.ceil(this.props.orders.value.numFound / 30) &&
-            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: parseInt(this.props.qs.page) + 1 })} className="index">Next</button>
-          }
-          {this.props.qs.page < Math.ceil(this.props.orders.value.numFound / 30) &&
-            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: Math.ceil(this.props.orders.value.numFound / 30) })} className="index">Last</button>
+            calcRange(parseInt(this.props.qs.page), Math.ceil(this.props.orders.value.numFound / 30)).map( (i) => 
+            <JSXZ in="orders" sel=".page-div-index" key={i}>
+              <Z sel=".pagen" onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: i})} className={cn(classNameZ, {'highlight': (this.props.qs.page == i)})}>{i}</Z>
+            </JSXZ>)
           }
           </Z>
+          <Z sel=".page-next" onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: parseInt(this.props.qs.page) + 1})} className={cn(classNameZ, {'hidden': this.props.qs.page >= Math.ceil(this.props.orders.value.numFound / 30)})}><ChildrenZ/></Z>
+          <Z sel=".page-last" onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: Math.ceil(this.props.orders.value.numFound / 30)})} className={cn(classNameZ, {'hidden': this.props.qs.page >= Math.ceil(this.props.orders.value.numFound / 30)})}><ChildrenZ/></Z>
 			</JSXZ>
   }
 })
@@ -292,9 +277,7 @@ var Order = createReactClass({
       <Z sel=".client-name">{this.props.order.value.docs[0]["custom.customer.full_name"]}</Z>
       <Z sel=".client-address">{this.props.order.value.docs[0]["custom.billing_address"]}</Z>
       <Z sel=".client-number">{this.props.order.value.docs[0].id}</Z>
-      <Z sel=".link">
-        <button onClick={() => Link.GoTo("orders", {}, this.props.qs)} className="button-2">Go back</button>
-      </Z>
+      <Z sel=".button-2" onClick={() => Link.GoTo("orders", {}, this.props.qs)}><ChildrenZ /></Z>
     </JSXZ>
   }
 })
