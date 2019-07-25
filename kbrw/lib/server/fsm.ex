@@ -22,15 +22,19 @@ defmodule MyFSM.Paypal do
     use ExFSM
   
     deftrans init({:process_payment, []}, order) do 
-      {:next_state, :not_verified, order}
+      random_number = Enum.random([0, 1])
+      cond do
+        random_number == 0 -> {:next_state, :not_verified, order}
+        true -> {:next_state, :payment_failed, order}
+      end
     end 
   
     deftrans not_verified({:verification, []}, order) do 
       {:next_state, :finished, order}
     end
 
-    deftrans not_verified({:verif_failed, []}, order) do 
-      {:next_state, :payment_failed, order}
+    deftrans payment_failed({:retry, []}, order) do 
+      {:next_state, :pending, order}
     end
   end
 
@@ -84,11 +88,6 @@ defmodule MyFSM.Paypal do
         order = applyTransition(order, event)
         cond do
           order != :error -> 
-            order = cond do
-              order["payment"]["payment_method"] == "stripe" ->
-                applyTransition(order, :verif_failed)
-              true -> order
-            end
             KBRW.Riak.createObject('buck', Poison.encode!(order), intern_state)
             {:reply, order, intern_state}
           true -> {:reply, :error, intern_state}
