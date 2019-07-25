@@ -1,6 +1,5 @@
 defmodule KBRW.Riak do
     def search(index, query, page \\ 0, rows \\ 30, sort \\ 'items') do
-        tmpPage = page
         page = cond do
             page >= 1 -> (page - 1) * rows
             true -> 0
@@ -10,12 +9,6 @@ defmodule KBRW.Riak do
         {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}} = 
         :httpc.request(:get, {url, []}, [], [])
         data = Poison.decode!(body)["response"]
-        tmpPage = cond do
-            tmpPage == 0 -> 1
-            page >= data["numFound"] -> round(data["numFound"] / rows) + 1
-            true -> tmpPage
-        end
-        data = Map.put(data, "pageIndex", tmpPage)
         Poison.encode!(data)
     end
 

@@ -13,6 +13,8 @@ var routes = {
   "orders": {
     path: (params) => `/orders`,
     match: (path, qs) => {
+      if (typeof qs.page == 'undefined')
+        qs.page = 1;
       return (path == "/orders") && {handlerPath: [Layout, Header, Orders]}
     }
   }, 
@@ -245,13 +247,41 @@ var Orders = createReactClass({
 			    }
           </Z>
           <Z sel=".index-div">
-            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: this.props.orders.value.pageIndex - 1 })} className="index">{this.props.orders.value.pageIndex - 1}</button>
-            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: this.props.orders.value.pageIndex})} className="index">{this.props.orders.value.pageIndex}</button>
-            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: this.props.orders.value.pageIndex + 1 })} className="index">{this.props.orders.value.pageIndex + 1}</button>
+          {this.props.qs.page > 1 &&
+            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: 1 })} className="index">First</button>
+          }
+          {this.props.qs.page > 1 &&
+            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: parseInt(this.props.qs.page) - 1 })} className="index">Precedent</button>
+          }
+          {
+            calcRange(parseInt(this.props.qs.page), Math.ceil(this.props.orders.value.numFound / 30)).map( (i) => {
+              if (this.props.qs.page == i)
+                return <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: i})} className="index highlight" key={i}>{i}</button>
+              return <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: i})} className="index" key={i}>{i}</button>
+            })
+          }
+          {this.props.qs.page < Math.ceil(this.props.orders.value.numFound / 30) &&
+            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: parseInt(this.props.qs.page) + 1 })} className="index">Next</button>
+          }
+          {this.props.qs.page < Math.ceil(this.props.orders.value.numFound / 30) &&
+            <button onClick={() => Link.GoTo("orders", {}, {...this.props.qs, page: Math.ceil(this.props.orders.value.numFound / 30) })} className="index">Last</button>
+          }
           </Z>
 			</JSXZ>
   }
 })
+
+function calcRange(currPage, max) {
+  if (max < 3)
+    return range(1, max);
+  if (currPage <= 1)
+    return range(1, 3);
+  if (currPage >= max)
+    return range(max - 2, max);
+  return range(currPage - 1, currPage + 1)
+}
+
+function range (start, end) { return [...Array(1+end-start).keys()].map(v => start+v) }
 
 var Order = createReactClass({
   statics: {

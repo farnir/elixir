@@ -2160,9 +2160,9 @@ textarea.w-input,textarea.w-select {
    Start of custom Webflow CSS
    ========================================================================== */
 .modal-wrapper {
-    position: absolute;
-    left: 0%;
-    top: 0%;
+    position: fixed;
+    left: 0;
+    top: 0;
     right: auto;
     bottom: auto;
     z-index: 1000;
@@ -2231,9 +2231,9 @@ textarea.w-input,textarea.w-select {
 }
 
 .loader-wrapper {
-    position: absolute;
-    left: 0%;
-    top: 0%;
+    position: fixed;
+    left: 0;
+    top: 0;
     right: auto;
     bottom: auto;
     display: -webkit-box;
