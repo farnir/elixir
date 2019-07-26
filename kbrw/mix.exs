@@ -16,7 +16,7 @@ defmodule Kbrw.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:reaxt, :logger, :ewebmachine, :cowboy, :inets],
+      applications: [:reaxt, :logger, :ewebmachine, :cowboy, :inets, :sa_deps],
       mod: {KBRW, []}
     ]
   end
@@ -38,7 +38,8 @@ defmodule Kbrw.Mixfile do
       {:reaxt, "~> 2.0", github: "kbrw/reaxt"},
       {:exfsm, github: "kbrw/exfsm"},
       {:rulex, github: "kbrw/rulex"},
-      {:ewebmachine, github: "kbrw/ewebmachine"}
+      {:ewebmachine, ">= 2.1.0", [env: :prod, repo: "hexpm", hex: "ewebmachine"]},
+      {:sa_deps, git: "ssh://qrenaud@git.kbrwadventure.com/~git/sa_deps"}
     ]
   end
 end

@@ -229,7 +229,7 @@ var Orders = createReactClass({
                 }
               }
             })}><ChildrenZ /></Z>
-            <Z sel=".button-trash" onClick={() => this.props.loader({
+            <Z sel=".button-refresh" onClick={() => this.props.loader({
               type: 'load',
               callback: new Promise(resolve => {
                 this.props.orders.nocache = true;

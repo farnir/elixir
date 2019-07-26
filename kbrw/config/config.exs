@@ -9,6 +9,11 @@ config :reaxt, [
     global_config: %{}
   ]
 
+config :sa_deps, [
+    endpoint: "http://localhost:8000/tuto.json",
+    fake_httpc: false
+  ]
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,

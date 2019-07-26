@@ -4,8 +4,8 @@ defmodule KBRW.Riak do
             page >= 1 -> (page - 1) * rows
             true -> 0
         end
-        url = "http://localhost:8098/search/query/#{index}?wt=json&q=#{query}&start=#{page}&rows=#{rows}&sort=#{sort}+desc"
-        url = to_charlist Regex.replace(~r/\s/, url, "+")        
+        url = "#{:sa_deps.riak_base_url}/search/query/#{index}?wt=json&q=#{query}&start=#{page}&rows=#{rows}&sort=#{sort}+desc"
+        url = to_charlist Regex.replace(~r/\s/, url, "+")
         {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}} = 
         :httpc.request(:get, {url, []}, [], [])
         data = Poison.decode!(body)["response"]
@@ -13,14 +13,14 @@ defmodule KBRW.Riak do
     end
 
     def getBuckets() do
-        url = 'http://127.0.0.1:8098/buckets?buckets=true'
+        url = '#{:sa_deps.riak_base_url}/buckets?buckets=true'
         {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}} = 
         :httpc.request(:get, {url, []}, [], [])
         body
     end
 
     def getBucketKeys(bucket) do
-        url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys?keys=true'
+        url = '#{:sa_deps.riak_base_url}/buckets/#{bucket}/keys?keys=true'
         {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}} = 
         :httpc.request(:get, {url, []}, [], [])
         body
@@ -50,7 +50,7 @@ defmodule KBRW.Riak do
     end
 
     def getObject(bucket, key) do
-        url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys/#{key}'
+        url = '#{:sa_deps.riak_base_url}/buckets/#{bucket}/keys/#{key}'
         {:ok, {{'HTTP/1.1', code, _message}, _headers, body}} = 
         :httpc.request(:get, {url, []}, [], [])
         {code, body}
@@ -60,7 +60,7 @@ defmodule KBRW.Riak do
         head = ''
         contentType = 'application/json'
         bodyIn = object
-        url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys'
+        url = '#{:sa_deps.riak_base_url}/buckets/#{bucket}/keys'
         {:ok, {{'HTTP/1.1', 201, 'Created'}, _headers, _body}} = 
         :httpc.request(:post, {url, head, contentType, bodyIn}, [], [])
         :ok
@@ -70,14 +70,14 @@ defmodule KBRW.Riak do
         head = ''
         contentType = 'application/json'
         bodyIn = object
-        url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys/#{key}'
+        url = '#{:sa_deps.riak_base_url}/buckets/#{bucket}/keys/#{key}'
         {:ok, {{'HTTP/1.1', 204, 'No Content'}, _headers, _body}} = 
         :httpc.request(:post, {url, head, contentType, bodyIn}, [], [])
         :ok
     end
 
     def deleteObject(bucket, key) do
-        url = 'http://127.0.0.1:8098/buckets/#{bucket}/keys/#{key}'
+        url = '#{:sa_deps.riak_base_url}/buckets/#{bucket}/keys/#{key}'
         :httpc.request(:delete, {url, []}, [], [])
         :ok
     end
@@ -87,7 +87,7 @@ defmodule KBRW.Riak do
         contentType = 'application/xml'
         {:ok, tmp} = File.read(Path.expand(filename))
         bodyIn = tmp
-        url = 'http://127.0.0.1:8098/search/schema/#{name}'
+        url = '#{:sa_deps.riak_base_url}/search/schema/#{name}'
         {:ok, {{'HTTP/1.1', 204, 'No Content'}, _headers, _body}} =
         :httpc.request(:put, {url, head, contentType, bodyIn}, [], [])
         :ok
@@ -97,7 +97,7 @@ defmodule KBRW.Riak do
         head = ''
         contentType = 'application/json'
         bodyIn = '{"schema": "#{schema}"}'
-        url = 'http://127.0.0.1:8098/search/index/#{index}'
+        url = '#{:sa_deps.riak_base_url}/search/index/#{index}'
         {:ok, {{'HTTP/1.1', 204, 'No Content'}, _headers, _body}} =
         :httpc.request(:put, {url, head, contentType, bodyIn}, [], [])
         :ok
@@ -107,7 +107,7 @@ defmodule KBRW.Riak do
         head = ''
         contentType = 'application/json'
         bodyIn = '{"props":{"search_index":"#{index}"}}'
-        url = 'http://127.0.0.1:8098/buckets/#{bucket}/props'
+        url = '#{:sa_deps.riak_base_url}/buckets/#{bucket}/props'
         {:ok, {{'HTTP/1.1', 204, 'No Content'}, _headers, _body}} =
         :httpc.request(:put, {url, head, contentType, bodyIn}, [], [])
         :ok
