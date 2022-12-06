@@ -21,7 +21,7 @@
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^4.0.0",
     "jsx": "^0.9.89",
-    "qs": "^6.7.0",
+    "qs": "^6.7.3",
     "reaxt": "file:reaxt.tgz",
     "when": "^3.7.8",
     "xhr2": "^0.2.0",
